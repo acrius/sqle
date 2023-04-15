@@ -1,16 +1,13 @@
 from __future__ import annotations
-from tsql import (
-    Query,
-    SQLEnvironment,
-    __version__,
-    AdapterFactory as BaseAdapterFactory,
-    Adapter as BaseAdapter,
-    AdapterSerializer as BaseAdapterSerializer,
-)
-from tsql.exceptions import SerizlierNotFound
-from typing import Any, Type
-from collections.abc import Iterable
 
+from collections.abc import Iterable
+from typing import Any, Type
+
+from sqle import Adapter as BaseAdapter
+from sqle import AdapterFactory as BaseAdapterFactory
+from sqle import AdapterSerializer as BaseAdapterSerializer
+from sqle import Query, SQLEnvironment, __version__
+from sqle.exceptions import SerizlierNotFound
 
 RESULT_ROWS = [{"name": "test", "email": "test@test.test"}]
 

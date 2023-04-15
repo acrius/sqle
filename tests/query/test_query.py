@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from tsql import Query
+from sqle import Query
 
 TEST_TARGET_QUERY = """
     select * from profiles

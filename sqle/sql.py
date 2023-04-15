@@ -4,7 +4,7 @@ from collections.abc import Mapping
 from inspect import isclass, stack
 from os.path import isabs
 from pathlib import Path
-from typing import Callable, Type, TypeVar, Any
+from typing import Any, Callable, Type, TypeVar
 
 from jinja2 import Environment
 from typing_extensions import get_type_hints

@@ -1,4 +1,4 @@
-# TSQL
+# SQLE
 
 Python package designed to execute pure sql queries.
 

@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Type, TypeVar
 
 from jinja2 import Environment, FileSystemLoader
-from .contrib.text import clear_text
 
+from .contrib.text import clear_text
 from .exceptions import TSQLValueError
 
 T = TypeVar("T", bound="Query")

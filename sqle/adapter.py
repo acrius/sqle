@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractclassmethod
 from functools import cached_property
-from typing import Callable, TYPE_CHECKING, Type, TypeVar, Any, Protocol
-from functools import cached_property
+from typing import TYPE_CHECKING, Any, Callable, Protocol, Type, TypeVar
+
 from .exceptions import SerizlierNotFound
 
 if TYPE_CHECKING:
