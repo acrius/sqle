@@ -24,10 +24,14 @@ class AdapterSerializer:
 
     def serialize_param(self, value: Any, name: str = NO_NAME_PARAM_NAME) -> Any:
         match value:
+            case bool():
+                _value = "true" if value else "false"
             case int() | float():
                 _value = str(value)
             case str():
                 _value = self.serialize_string(value)
+            case None:
+                _value = "NULL"
             case _:
                 _value = self.serialize_other_object(value)
 
