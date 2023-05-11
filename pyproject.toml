@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sqle"
-version = "0.0.0a0"
+version = "0.0.0a1"
 description = ""
 authors = ["acrius <acrius@mail.ru>"]
 license = "MIT"
