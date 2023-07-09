@@ -96,4 +96,4 @@ def test_sql():
 
 
 def test_version():
-    assert __version__ == "0.0.0a2"
+    assert __version__ == "0.0.0a3"
