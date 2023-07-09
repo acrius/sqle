@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractclassmethod
+from collections.abc import Iterable, Mapping
+from dataclasses import fields, is_dataclass
+from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, Protocol, Type, TypeVar
 
@@ -8,6 +11,90 @@ from .exceptions import SerizlierNotFound
 
 if TYPE_CHECKING:
     from .sql import SQLEnvironment
+
+
+class IterableSpec(str, Enum):
+    COLUMNS = "columns"
+    VALUES = "values"
+
+
+class IterableRepresentation:
+    def __init__(self, iterable: Iterable, cast: Callable[[Any], Any]) -> None:
+        self._original_iterable = iterable
+        self._cast = cast
+
+    def __format__(self, __format_spec: str) -> str:
+        match __format_spec:
+            case IterableSpec.COLUMNS:
+                formatted = self.columns_as_string
+            case IterableSpec.VALUES:
+                formatted = self.values_as_string
+            case _:
+                formatted = self.iterable_as_sequence(self._original_iterable)
+
+        return formatted
+
+    def __str__(self) -> str:
+        return self.iterable_as_sequence(self._original_iterable)
+
+    @cached_property
+    def columns_as_string(self) -> str:
+        return self.iterable_as_sequence(self.columns)
+
+    @cached_property
+    def columns(self) -> list[str]:
+        return list(
+            sorted(
+                {
+                    name
+                    for item in self._original_iterable
+                    for name in self._get_item_column_names(item)
+                }
+            )
+        )
+
+    @staticmethod
+    def _get_item_column_names(item: Any) -> list[str]:
+        if isinstance(item, Mapping):
+            names = list(item)
+        elif is_dataclass(item):
+            names = [field.name for field in fields(item)]
+        else:
+            raise ValueError(
+                "Only dict and dataclass objects are available for name search."
+            )
+
+        return names
+
+    @staticmethod
+    def _get_dict_column_names(item: dict) -> list[str]:
+        return list(item.keys())
+
+    @cached_property
+    def values_as_string(self):
+        return ", ".join(
+            self.iterable_as_sequence(row_values) for row_values in self.values
+        )
+
+    @cached_property
+    def values(self) -> list[list[Any]]:
+        return [self._get_item_values(item) for item in self._original_iterable]
+
+    def _get_item_values(self, item: Any) -> list[Any]:
+        if isinstance(item, Mapping):
+            values = [item.get(column_name) for column_name in self.columns]
+        elif is_dataclass(item):
+            values = [getattr(item, column_name, None) for column_name in self.columns]
+        else:
+            raise ValueError(
+                "Only dict and dataclass objects are available for values search."
+            )
+
+        return values
+
+    def iterable_as_sequence(self, iterable) -> str:
+        items = ", ".join(self._cast(item) for item in iterable)
+        return f"({items})"
 
 
 class StringRepresentation(Protocol):
@@ -30,6 +117,8 @@ class AdapterSerializer:
                 _value = str(value)
             case str():
                 _value = self.serialize_string(value)
+            case Iterable():
+                _value = IterableRepresentation(value, self.serialize_param)
             case None:
                 _value = "NULL"
             case _:

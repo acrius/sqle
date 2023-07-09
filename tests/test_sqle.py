@@ -12,18 +12,20 @@ from sqle.exceptions import SerizlierNotFound
 RESULT_ROWS = [{"name": "test", "email": "test@test.test"}]
 
 
+class TestIterableContainer:
+    def __init__(self, *collection: Iterable) -> None:
+        self.collection = collection
+
+
 class AdapterSerializer(BaseAdapterSerializer):
     def serialize_param(self, value: Any, name: str = ...) -> Any:
         try:
             value = super(AdapterSerializer, self).serialize_param(value, name)
         except SerizlierNotFound:
-            if isinstance(value, Iterable):
-                _value = [
-                    super(AdapterSerializer, self).serialize_param(_value, name)
-                    for _value in value
-                ]
-                _value = ", ".join(_value)
-                value = f"({_value})"
+            if isinstance(value, TestIterableContainer):
+                value = super(AdapterSerializer, self).serialize_param(
+                    value.collection, name
+                )
             else:
                 raise SerizlierNotFound
 
@@ -84,9 +86,7 @@ def test_sql():
 
     assert isinstance(_sql.adapter, Adapter)
 
-    adapter = _sql.with_params(
-        profile_ids=[1, 2, 3],
-    ).adapter
+    adapter = _sql.with_params(profile_ids=TestIterableContainer(1, 2, 3)).adapter
 
     assert adapter.query == TARGET_SQL_WITHOUT_PAGINATION
 
@@ -96,4 +96,4 @@ def test_sql():
 
 
 def test_version():
-    assert __version__ == "0.0.0a1"
+    assert __version__ == "0.0.0a2"

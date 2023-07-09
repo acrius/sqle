@@ -69,10 +69,10 @@ class SQLEnvironment:
 
     @classmethod
     def create_instance(
-        cls,
+        cls: Type[T],
         name: str = SQL_ENVIRONMENT_DEFAULT_INSTANCE_NAME,
         **connection_factories: Callable,
-    ) -> Type[SQLEnvironment]:
+    ) -> Type[T]:
         sql_environment_instance = type(name, cls.__bases__, dict(cls.__dict__))
 
         for adapter_name, adapter_factory in cls.adapters.items():
